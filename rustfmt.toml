@@ -1,0 +1,12 @@
+comment_width = 80
+fn_single_line = true
+format_strings = true
+imports_indent = "Block"
+max_width = 80
+reorder_imported_names = true
+reorder_imports = true
+reorder_imports_in_group = true
+trailing_semicolon = true
+use_try_shorthand = true
+wrap_comments = true
+write_mode = "Replace"
