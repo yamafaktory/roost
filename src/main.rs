@@ -10,10 +10,11 @@ mod constants;
 mod direction;
 mod player;
 mod types;
+mod stage;
 
 use constants::{BACKGROUND_COLOR, SCREEN_SIZE, SPRITE_NUMBER, SPRITE_SIZE};
-use nalgebra::DMatrix;
 use piston_window::*;
+use stage::Stage;
 use types::{Sprites, Tex, Vec2, World};
 
 fn render(
@@ -123,27 +124,15 @@ fn main() {
         create_sprite(&mut window, "spaceship.png".to_string()),
     );
 
+    // Instantiate the stage.
+    let stage = Stage::new();
+
     // Instantiate the sprites.
     let sprites: Sprites =
         generate_sprites(vec!["s", "asteroid", "asteroid-bis"], &mut window);
 
     // Configure the events.
     let mut events = Events::new(EventSettings::new().max_fps(60).ups(600));
-
-    // Generate the world map as a matrix.
-    #[rustfmt_skip]
-    let world = DMatrix::from_row_slice(SPRITE_NUMBER, SPRITE_NUMBER, &[
-        1, 0, 2, 2, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-    ]);
 
     // Main event loop.
     while let Some(event) = events.next(&mut window) {
@@ -156,11 +145,11 @@ fn main() {
         }
 
         if let Some(_) = event.update_args() {
-            player.update_position(&world);
+            player.update_position(&stage.world);
         }
 
         if let Some(_) = event.render_args() {
-            render(event, &mut window, &world, &player, &sprites);
+            render(event, &mut window, &stage.world, &player, &sprites);
         }
     }
 }

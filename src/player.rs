@@ -46,6 +46,16 @@ impl Player {
         };
     }
     pub fn stop_move(&mut self) -> () { self.direction = Direction::Neutral }
+    fn pos_to_matrix(&self) -> (f64, f64) {
+        (
+            (self.position.x / SPRITE_SIZE).round(),
+            (self.position.y / SPRITE_SIZE).round(),
+        )
+    }
+    fn is_colliding_world(&self, world: &World) -> bool {
+        let (x, y) = self.pos_to_matrix();
+        world.row(x as usize)[y as usize] != 0
+    }
     pub fn update_position(&mut self, world: &World) -> () {
         let (half_sprite_size, screen_size, step, mut next_position) = (
             SPRITE_SIZE / 2.0,
@@ -74,7 +84,9 @@ impl Player {
             Direction::Neutral => {}
         }
 
+        println!("------{:?}", self.is_colliding_world(world));
+
         // Update the user position.
-        self.position = next_position
+        self.position = next_position;
     }
 }
