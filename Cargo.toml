@@ -7,5 +7,4 @@ authors = ["Davy Duperron <yamafaktory@gmail.com>"]
 find_folder = "0.3.0"
 gfx_device_gl = "0.14.6"
 nalgebra = "0.13.1"
-nphysics2d = "0.7.2"
 piston_window = "0.74.0"

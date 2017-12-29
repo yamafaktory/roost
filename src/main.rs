@@ -3,7 +3,6 @@
 extern crate find_folder;
 extern crate gfx_device_gl;
 extern crate nalgebra;
-extern crate nphysics2d;
 extern crate piston_window;
 
 mod constants;
