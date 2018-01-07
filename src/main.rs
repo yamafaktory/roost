@@ -119,7 +119,7 @@ fn main() {
     let mut player: player::Player = player::Player::new(
         direction::Direction::Neutral,
         Vec2::new(SCREEN_SIZE as f64 / 2.0, SCREEN_SIZE as f64 / 2.0),
-        Vec2::new(0.5, 0.5),
+        Vec2::new(1.0, 1.0),
         create_sprite(&mut window, "spaceship.png".to_string()),
     );
 
