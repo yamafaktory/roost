@@ -1,14 +1,7 @@
 use constants::{SCREEN_SIZE, SPRITE_SIZE, STEP};
 use direction::Direction;
 use piston_window::Key;
-use types::{Tex, Vec2, World};
-
-#[derive(Debug)]
-enum Either<L, R> {
-    Left(L),
-    Right(R),
-}
-
+use types::{Either, Tex, Vec2, World};
 pub struct Player {
     pub direction: Direction,
     pub next_position: Vec2,
@@ -54,17 +47,19 @@ impl Player {
         };
     }
     pub fn stop_move(&mut self) { self.direction = Direction::Neutral }
-    fn pos_to_matrix(
+    fn position_to_matrix(
         &self,
         multi: bool,
     ) -> Either<(usize, usize), Vec<(usize, usize)>> {
-        let get_pos_tuple = |(x_offset, y_offset): (f64, f64)|{
-            (
-                (((self.next_position.y + y_offset) / SPRITE_SIZE)
-                    .ceil() - 1.0) as usize,
-                (((self.next_position.x + x_offset) / SPRITE_SIZE)
-                    .ceil() - 1.0) as usize,
-            )
+        let get_pos_tuple = |(x_offset, y_offset): (f64, f64)| {
+            let (x, y) = (
+                ((self.next_position.x + x_offset) / SPRITE_SIZE).ceil(),
+                ((self.next_position.y + y_offset) / SPRITE_SIZE).ceil(),
+            );
+            return (
+                (if y >= 1.0 { y - 1.0 } else { 0.0 }) as usize,
+                (if x >= 1.0 { x - 1.0 } else { 0.0 }) as usize,
+            );
         };
         if multi {
             // Get all the corner positions of the sprite.
@@ -75,22 +70,21 @@ impl Player {
             positions.push(get_pos_tuple((SPRITE_SIZE, 0.0)));
             // Bottom left corner.
             positions.push(get_pos_tuple((0.0, SPRITE_SIZE)));
-             // Bottom right corner.
+            // Bottom right corner.
             positions.push(get_pos_tuple((SPRITE_SIZE, SPRITE_SIZE)));
             return Either::Right(positions);
         } else {
+            // Use the center of the sprite.
             let half_sprite_size = SPRITE_SIZE / 2.0;
-            return Either::Left((
-                (((self.next_position.y + half_sprite_size) / SPRITE_SIZE)
-                    .ceil() - 1.0) as usize,
-                (((self.next_position.x + half_sprite_size) / SPRITE_SIZE)
-                    .ceil() - 1.0) as usize,
-            ));
+            return Either::Left(get_pos_tuple((
+                half_sprite_size,
+                half_sprite_size,
+            )));
         }
     }
     fn collide_world(&self, world: &World) -> bool {
         let mut collisions = 0;
-        if let Either::Right(positions) = self.pos_to_matrix(true) {
+        if let Either::Right(positions) = self.position_to_matrix(true) {
             positions
                 .iter()
                 .map(|&pos| {
@@ -107,47 +101,37 @@ impl Player {
                 .collect::<Vec<_>>();
         }
         collisions > 0
-        // let (row, column) = self.pos_to_matrix(true);
-        // let column = world.column(column);
-        // let row = column.row(row);
-        // let mut iter = row.iter().enumerate();
-        // return if let Some((_, sprite_number)) = iter.next() {
-        //     *sprite_number != 0
-        // } else {
-        //     false
-        // };
     }
-    fn will_collide_world(&self, world: &World) -> bool {
-        // let (row, column) = self.pos_to_matrix(false);
-        // println!(
-        //     "{} & {}",
-        //     self.next_position.y % SPRITE_SIZE,
-        //     self.next_position.x % SPRITE_SIZE
-        // );
-        // // Extract a slice of the matrix to get the surroundings.
-        // let surroundings = match (row, column) {
-        //     (0, 1...8) => world.slice((0, column - 1), (2, 3)),
-        //     (0, 9) => world.slice((0, column - 1), (2, 2)),
-        //     (1...8, 9) => world.slice((row - 1, column - 1), (3, 2)),
+    fn check_surroundings(&self, world: &World) -> bool {
+        return if let Either::Left((row, column)) =
+            self.position_to_matrix(false)
+        {
+            // Extract a slice of the matrix to get the surroundings.
+            let surroundings = match (row, column) {
+                (0, 1...8) => world.slice((0, column - 1), (2, 3)),
+                (0, 9) => world.slice((0, column - 1), (2, 2)),
+                (1...8, 9) => world.slice((row - 1, column - 1), (3, 2)),
 
-        //     (1...8, 0) => world.slice((row - 1, 0), (3, 2)),
-        //     (9, 0) => world.slice((row - 1, 0), (2, 2)),
-        //     (9, 1...8) => world.slice((row - 1, column - 1), (2, 3)),
+                (1...8, 0) => world.slice((row - 1, 0), (3, 2)),
+                (9, 0) => world.slice((row - 1, 0), (2, 2)),
+                (9, 1...8) => world.slice((row - 1, column - 1), (2, 3)),
 
-        //     (0, 0) => world.slice((0, 0), (2, 2)),
-        //     (9, 9) => world.slice((row - 1, column - 1), (2, 2)),
+                (0, 0) => world.slice((0, 0), (2, 2)),
+                (9, 9) => world.slice((row - 1, column - 1), (2, 2)),
 
-        //     _ => world.slice((row - 1, column - 1), (3, 3)),
-        // };
-        // let mut obstacles: u8 = 0;
-        // for row in 0..surroundings.column(0).iter().count() {
-        //     for (_, value) in surroundings.row(row).iter().enumerate() {
-        //         obstacles += value;
-        //     }
-        // }
-        // println!("{}", surroundings);
-        // obstacles != 0
-        false
+                _ => world.slice((row - 1, column - 1), (3, 3)),
+            };
+            let mut obstacles: u8 = 0;
+            for row in 0..surroundings.column(0).iter().count() {
+                for (_, value) in surroundings.row(row).iter().enumerate() {
+                    obstacles += value;
+                }
+            }
+            println!("{}", surroundings);
+            obstacles != 0
+        } else {
+            false
+        };
     }
     pub fn update_position(&mut self, world: &World) {
         let (scale_x, scale_y, screen_size, step) =
@@ -173,9 +157,10 @@ impl Player {
             Direction::Neutral => {}
         }
 
+        self.check_surroundings(world);
+
         if self.collide_world(world) {
             self.next_position = self.position;
-            // self.position = self.next_position;
             println!("💥");
         } else {
             // Update the user position if not colliding.

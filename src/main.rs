@@ -128,10 +128,10 @@ fn main() {
 
     // Instantiate the sprites.
     let sprites: Sprites =
-        generate_sprites(vec!["s", "asteroid", "asteroid-bis"], &mut window);
+        generate_sprites(vec!["s", "grass", "tree-a", "tree-b"], &mut window);
 
     // Configure the events.
-    let mut events = Events::new(EventSettings::new().max_fps(60).ups(600));
+    let mut events = Events::new(EventSettings::new().max_fps(60).ups(200));
 
     // Main event loop.
     while let Some(event) = events.next(&mut window) {
