@@ -1,4 +1,6 @@
 pub const BACKGROUND_COLOR: [f32; 4] = [0.29, 0.74, 0.32, 1.0];
+// Use a pixel tolerance to avoid being stuck between blocks.
+pub const PIXEL_TOLERANCE: f64 = 4.0;
 pub const SCREEN_SIZE: u32 = 500;
 pub const SPRITE_NUMBER: usize = 10;
 pub const SPRITE_SIZE: f64 = SCREEN_SIZE as f64 / 10.0;

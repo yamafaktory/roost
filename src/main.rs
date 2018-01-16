@@ -1,6 +1,5 @@
 #![feature(custom_attribute)]
 
-extern crate find_folder;
 extern crate gfx_device_gl;
 extern crate nalgebra;
 extern crate piston_window;
@@ -10,11 +9,13 @@ mod direction;
 mod player;
 mod types;
 mod stage;
+mod sprite;
 
 use constants::{BACKGROUND_COLOR, SCREEN_SIZE, SPRITE_NUMBER, SPRITE_SIZE};
 use piston_window::*;
+use sprite::generate_sprites;
 use stage::Stage;
-use types::{Sprites, Tex, Vec2, World};
+use types::{Sprites, Vec2, World};
 
 fn render(
     event: Event,
@@ -30,14 +31,14 @@ fn render(
 
         // Render the player sprite.
         match player.sprite {
-            Ok(ref sprite) => {
+            &Ok(ref sprite) => {
                 image(
                     sprite,
                     context.transform.trans(x, y).scale(scale.x, scale.y),
                     graphics,
                 );
             }
-            Err(ref e) => println!("Player sprite error: {:?}", e),
+            &Err(ref e) => println!("Player sprite error: {:?}", e),
         }
 
         // Render the world sprites.
@@ -72,37 +73,6 @@ fn render(
     });
 }
 
-fn create_sprite(
-    window: &mut PistonWindow,
-    src: String,
-) -> Result<Tex, String> {
-    let assets = find_folder::Search::ParentsThenKids(1, 1)
-        .for_folder("assets")
-        .unwrap();
-
-    return Texture::from_path(
-        &mut window.factory,
-        assets.join(src),
-        Flip::None,
-        &TextureSettings::new(),
-    );
-}
-
-fn generate_sprites(
-    sprites: Vec<&'static str>,
-    window: &mut PistonWindow,
-) -> Sprites {
-    return sprites
-        .iter()
-        .map(|&s| {
-            let mut s = s.to_string();
-            let ext = ".png".to_string();
-            s.push_str(&ext);
-            return create_sprite(window, s);
-        })
-        .collect::<Sprites>();
-}
-
 fn main() {
     // Main window settings.
     let mut window: PistonWindow =
@@ -120,7 +90,7 @@ fn main() {
         direction::Direction::Neutral,
         Vec2::new(SCREEN_SIZE as f64 / 2.0, SCREEN_SIZE as f64 / 2.0),
         Vec2::new(1.0, 1.0),
-        create_sprite(&mut window, "spaceship.png".to_string()),
+        &mut window,
     );
 
     // Instantiate the stage.

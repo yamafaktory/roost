@@ -1,28 +1,52 @@
-use constants::{SCREEN_SIZE, SPRITE_SIZE, STEP};
+use constants::{PIXEL_TOLERANCE, SCREEN_SIZE, SPRITE_SIZE, STEP};
 use direction::Direction;
+use piston_window::*;
 use piston_window::Key;
-use types::{Either, Tex, Vec2, World};
-pub struct Player {
+use sprite::create_sprite;
+use types::{AnimatedSprite, Either, Tex, Vec2, World};
+
+pub struct Player<'a> {
     pub direction: Direction,
     pub next_position: Vec2,
     pub position: Vec2,
     pub scale: Vec2,
-    pub sprite: Result<Tex, String>,
+    pub sprite: &'a Result<Tex, String>,
+    pub sprites: AnimatedSprite,
 }
 
-impl Player {
+impl<'a> Player<'a> {
     pub fn new(
         direction: Direction,
         position: Vec2,
         scale: Vec2,
-        sprite: Result<Tex, String>,
+        // We need the window context.
+        window: &mut PistonWindow,
     ) -> Self {
+        let mut sprites: AnimatedSprite = Vec::new();
+        let mut injectSprites = move |direction: &String, sprites: &mut AnimatedSprite| {
+            for index in 0..3 {
+                let indexString = index.to_string();
+                &sprites.push(create_sprite(
+                    window,
+                    (direction.to_string() + &"-".to_string() + &indexString[..] + ".png"),
+                ));
+            }
+        };
+        // Left sprites.
+        injectSprites(&"left".to_string(), &mut sprites);
+        // Right sprites.
+        injectSprites(&"right".to_string(), &mut sprites);
+        // Up sprites.
+        injectSprites(&"up".to_string(), &mut sprites);
+        // Down sprites.
+        injectSprites(&"down".to_string(), &mut sprites);
         Self {
             direction,
             next_position: position,
             position,
             scale,
-            sprite,
+            sprite: &sprites[0],
+            sprites,
         }
     }
     fn get_step(&self) -> f64 { STEP }
@@ -62,16 +86,20 @@ impl Player {
             );
         };
         if multi {
+            let adjusted_sprite_size = SPRITE_SIZE - PIXEL_TOLERANCE;
             // Get all the corner positions of the sprite.
             let mut positions = Vec::new();
             // Top left corner.
             positions.push(get_pos_tuple((0.0, 0.0)));
             // Top right corner.
-            positions.push(get_pos_tuple((SPRITE_SIZE, 0.0)));
+            positions.push(get_pos_tuple((adjusted_sprite_size, 0.0)));
             // Bottom left corner.
-            positions.push(get_pos_tuple((0.0, SPRITE_SIZE)));
+            positions.push(get_pos_tuple((0.0, adjusted_sprite_size)));
             // Bottom right corner.
-            positions.push(get_pos_tuple((SPRITE_SIZE, SPRITE_SIZE)));
+            positions.push(get_pos_tuple((
+                adjusted_sprite_size,
+                adjusted_sprite_size,
+            )));
             return Either::Right(positions);
         } else {
             // Use the center of the sprite.
