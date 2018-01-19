@@ -22,7 +22,6 @@ impl Player {
         // We need the window context.
         window: &mut PistonWindow,
     ) -> Self {
-        #[derive(Copy, Clone)]
         let mut sprites: AnimatedSprite = Vec::new();
         let mut inject_sprites = |direction: &String| {
             let mut inner_sprites: AnimatedSprite = Vec::new();
