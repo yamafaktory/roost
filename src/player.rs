@@ -5,16 +5,16 @@ use piston_window::Key;
 use sprite::create_sprite;
 use types::{AnimatedSprite, Either, Tex, Vec2, World};
 
-pub struct Player<'a> {
+pub struct Player {
     pub direction: Direction,
     pub next_position: Vec2,
     pub position: Vec2,
     pub scale: Vec2,
-    pub sprite: &'a Result<Tex, String>,
+    pub sprite: Result<Tex, String>,
     pub sprites: AnimatedSprite,
 }
 
-impl<'a> Player<'a> {
+impl Player {
     pub fn new(
         direction: Direction,
         position: Vec2,
@@ -22,31 +22,35 @@ impl<'a> Player<'a> {
         // We need the window context.
         window: &mut PistonWindow,
     ) -> Self {
+        #[derive(Copy, Clone)]
         let mut sprites: AnimatedSprite = Vec::new();
-        let mut injectSprites = move |direction: &String, sprites: &mut AnimatedSprite| {
+        let mut inject_sprites = |direction: &String| {
+            let mut inner_sprites: AnimatedSprite = Vec::new();
             for index in 0..3 {
-                let indexString = index.to_string();
-                &sprites.push(create_sprite(
+                let index_string = index.to_string();
+                inner_sprites.push(create_sprite(
                     window,
-                    (direction.to_string() + &"-".to_string() + &indexString[..] + ".png"),
+                    (direction.to_string() + &"-".to_string() + &index_string[..]
+                        + ".png"),
                 ));
             }
+            inner_sprites
         };
         // Left sprites.
-        injectSprites(&"left".to_string(), &mut sprites);
+        sprites.append(&mut inject_sprites(&"left".to_string()));
         // Right sprites.
-        injectSprites(&"right".to_string(), &mut sprites);
+        sprites.append(&mut inject_sprites(&"right".to_string()));
         // Up sprites.
-        injectSprites(&"up".to_string(), &mut sprites);
+        sprites.append(&mut inject_sprites(&"up".to_string()));
         // Down sprites.
-        injectSprites(&"down".to_string(), &mut sprites);
+        sprites.append(&mut inject_sprites(&"down".to_string()));
         Self {
             direction,
             next_position: position,
             position,
             scale,
-            sprite: &sprites[0],
-            sprites,
+            sprite: sprites[0].clone(),
+            sprites: sprites,
         }
     }
     fn get_step(&self) -> f64 { STEP }

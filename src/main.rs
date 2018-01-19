@@ -31,14 +31,14 @@ fn render(
 
         // Render the player sprite.
         match player.sprite {
-            &Ok(ref sprite) => {
+            Ok(ref sprite) => {
                 image(
                     sprite,
                     context.transform.trans(x, y).scale(scale.x, scale.y),
                     graphics,
                 );
             }
-            &Err(ref e) => println!("Player sprite error: {:?}", e),
+            Err(ref e) => println!("Player sprite error: {:?}", e),
         }
 
         // Render the world sprites.
