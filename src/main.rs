@@ -30,7 +30,7 @@ fn render(
         clear(BACKGROUND_COLOR, graphics);
 
         // Render the player sprite.
-        match player.sprite {
+        match player.sprites[player.sprite_index] {
             Ok(ref sprite) => {
                 image(
                     sprite,

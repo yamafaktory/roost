@@ -3,14 +3,14 @@ use direction::Direction;
 use piston_window::*;
 use piston_window::Key;
 use sprite::create_sprite;
-use types::{AnimatedSprite, Either, Tex, Vec2, World};
+use types::{AnimatedSprite, Either, Vec2, World};
 
 pub struct Player {
     pub direction: Direction,
     pub next_position: Vec2,
     pub position: Vec2,
     pub scale: Vec2,
-    pub sprite: Result<Tex, String>,
+    pub sprite_index: usize,
     pub sprites: AnimatedSprite,
 }
 
@@ -29,8 +29,8 @@ impl Player {
                 let index_string = index.to_string();
                 inner_sprites.push(create_sprite(
                     window,
-                    (direction.to_string() + &"-".to_string() + &index_string[..]
-                        + ".png"),
+                    (direction.to_string() + &"-".to_string()
+                        + &index_string[..] + ".png"),
                 ));
             }
             inner_sprites
@@ -48,7 +48,8 @@ impl Player {
             next_position: position,
             position,
             scale,
-            sprite: sprites[0].clone(),
+            // Start width first going down sprite.
+            sprite_index: 9,
             sprites: sprites,
         }
     }
@@ -158,7 +159,6 @@ impl Player {
                     obstacles += value;
                 }
             }
-            println!("{}", surroundings);
             obstacles != 0
         } else {
             false
@@ -171,19 +171,42 @@ impl Player {
         match self.direction {
             Direction::Left => if self.position.x > 0.0 {
                 self.next_position.x -= step;
+                self.sprite_index = if self.sprite_index < 2 {
+                    self.sprite_index + 1
+                } else {
+                    0
+                };
             },
             Direction::Right => {
                 if self.position.x < screen_size - (SPRITE_SIZE / scale_x) {
                     self.next_position.x += step;
                 }
+                self.sprite_index =
+                    if self.sprite_index > 2 && self.sprite_index < 5 {
+                        self.sprite_index + 1
+                    } else {
+                        3
+                    }
             }
             Direction::Up => if self.position.y > 0.0 {
                 self.next_position.y -= step;
+                self.sprite_index =
+                    if self.sprite_index > 5 && self.sprite_index < 8 {
+                        self.sprite_index + 1
+                    } else {
+                        6
+                    };
             },
             Direction::Down => {
                 if self.position.y < screen_size - (SPRITE_SIZE / scale_y) {
                     self.next_position.y += step;
                 }
+                self.sprite_index =
+                    if self.sprite_index > 8 && self.sprite_index < 11 {
+                        self.sprite_index + 1
+                    } else {
+                        9
+                    };
             }
             Direction::Neutral => {}
         }
