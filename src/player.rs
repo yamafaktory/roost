@@ -1,3 +1,4 @@
+use collision::Collision;
 use constants::{PIXEL_TOLERANCE, SCREEN_SIZE, SPRITE_SIZE, STEP};
 use direction::Direction;
 use piston_window::*;
@@ -7,6 +8,7 @@ use types::{AnimatedSprite, Either, Vec2, World};
 
 pub struct Player {
     pub direction: Direction,
+    pub collision: Collision,
     pub next_position: Vec2,
     pub position: Vec2,
     pub scale: Vec2,
@@ -29,8 +31,8 @@ impl Player {
                 let index_string = index.to_string();
                 inner_sprites.push(create_sprite(
                     window,
-                    (direction.to_string() + &"-".to_string()
-                        + &index_string[..] + ".png"),
+                    direction.to_string() + &"-".to_string() + &index_string[..]
+                        + ".png",
                 ));
             }
             inner_sprites
@@ -44,6 +46,7 @@ impl Player {
         // Down sprites.
         sprites.append(&mut inject_sprites(&"down".to_string()));
         Self {
+            collision: Collision::None,
             direction,
             next_position: position,
             position,
@@ -211,14 +214,18 @@ impl Player {
             Direction::Neutral => {}
         }
 
-        self.check_surroundings(world);
-
         if self.collide_world(world) {
             self.next_position = self.position;
-            println!("💥");
+            self.collision = Collision::Some;
         } else {
             // Update the user position if not colliding.
             self.position = self.next_position;
+            // Check for an incoming collision.
+            if self.check_surroundings(world) {
+                self.collision = Collision::Incoming;
+            } else {
+                self.collision = Collision::None;
+            }
         }
     }
 }
