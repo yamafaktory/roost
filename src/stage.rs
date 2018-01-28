@@ -12,10 +12,10 @@ impl Stage {
             #[rustfmt_skip]
             // Generate the world map as a matrix.
             world: DMatrix::from_row_slice(SPRITE_NUMBER, SPRITE_NUMBER, &[
-                1, 0, 2, 3, 0, 0, 0, 0, 0, 1,
+                1, 0, 2, 3, 0, 0, 4, 0, 0, 1,
                 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 3, 0, 0, 0, 2, 0, 0,

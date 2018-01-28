@@ -1,10 +1,11 @@
 use collision::Collision;
 use constants::{PIXEL_TOLERANCE, SCREEN_SIZE, SPRITE_SIZE, STEP};
 use direction::Direction;
+use either::Either;
 use piston_window::*;
 use piston_window::Key;
 use sprite::create_sprite;
-use types::{AnimatedSprite, Either, Vec2, World};
+use types::{AnimatedSprite, Vec2, World};
 
 pub struct Player {
     pub direction: Direction,

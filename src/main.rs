@@ -7,6 +7,8 @@ extern crate piston_window;
 mod constants;
 mod collision;
 mod direction;
+mod either;
+mod entity;
 mod player;
 mod render;
 mod types;
@@ -16,9 +18,9 @@ mod sprite;
 use constants::SCREEN_SIZE;
 use piston_window::*;
 use render::render;
-use sprite::generate_sprites;
+use sprite::Sprite;
 use stage::Stage;
-use types::{Sprites, Vec2};
+use types::{Vec2};
 
 fn main() {
     // Main window settings.
@@ -44,8 +46,7 @@ fn main() {
     let stage = Stage::new();
 
     // Instantiate the sprites.
-    let sprites: Sprites =
-        generate_sprites(vec!["s", "grass", "tree-a", "tree-b"], &mut window);
+    let sprites = Sprite::new(&mut window).sprites;
 
     // Configure the events.
     let mut events = Events::new(EventSettings::new().max_fps(60).ups(200));
