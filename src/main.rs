@@ -46,7 +46,7 @@ fn main() {
     let stage = Stage::new();
 
     // Instantiate the sprites.
-    let sprites = Sprite::new(&mut window).sprites;
+    let sprite = Sprite::new(&mut window);
 
     // Configure the events.
     let mut events = Events::new(EventSettings::new().max_fps(60).ups(200));
@@ -62,11 +62,11 @@ fn main() {
         }
 
         if let Some(_) = event.update_args() {
-            player.update_position(&stage.world);
+            player.update_position(&stage.world, &sprite.entities);
         }
 
         if let Some(_) = event.render_args() {
-            render(event, &mut window, &stage.world, &player, &sprites);
+            render(event, &mut window, &stage.world, &player, &sprite.sprites);
         }
     }
 }

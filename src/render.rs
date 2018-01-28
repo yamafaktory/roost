@@ -15,18 +15,6 @@ pub fn render(
     window.draw_2d(&event, |context, graphics| {
         clear(BACKGROUND_COLOR, graphics);
 
-        // Render the player sprite.
-        match player.sprites[player.sprite_index] {
-            Ok(ref sprite) => {
-                image(
-                    sprite,
-                    context.transform.trans(x, y).scale(scale.x, scale.y),
-                    graphics,
-                );
-            }
-            Err(ref e) => println!("Player sprite error: {:?}", e),
-        }
-
         // Render the world sprites.
         for row in 0..SPRITE_NUMBER {
             for (column, value) in world.row(row).iter().enumerate() {
@@ -55,6 +43,18 @@ pub fn render(
                     }
                 }
             }
+        }
+
+        // Render the player sprite.
+        match player.sprites[player.sprite_index] {
+            Ok(ref sprite) => {
+                image(
+                    sprite,
+                    context.transform.trans(x, y).scale(scale.x, scale.y),
+                    graphics,
+                );
+            }
+            Err(ref e) => println!("Player sprite error: {:?}", e),
         }
     });
 }

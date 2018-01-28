@@ -12,4 +12,10 @@ impl Entity {
             &Entity::Traversable(string) => string
         };
     }
+    pub fn is_traversable(&self) -> bool {
+        match *self {
+            Entity::Block(_) => false,
+            Entity::Traversable(_) => true,
+        }
+    }
 }

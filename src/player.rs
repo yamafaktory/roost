@@ -5,7 +5,7 @@ use either::Either;
 use piston_window::*;
 use piston_window::Key;
 use sprite::create_sprite;
-use types::{AnimatedSprite, Vec2, World};
+use types::{AnimatedSprite, Entities, Vec2, World};
 
 pub struct Player {
     pub direction: Direction,
@@ -118,7 +118,7 @@ impl Player {
             )));
         }
     }
-    fn collide_world(&self, world: &World) -> bool {
+    fn collide_world(&self, world: &World, entities: &Entities) -> bool {
         let mut collisions = 0;
         if let Either::Right(positions) = self.position_to_matrix(true) {
             positions
@@ -129,7 +129,8 @@ impl Player {
                     let row = column.row(row);
                     let mut iter = row.iter().enumerate();
                     if let Some((_, sprite_number)) = iter.next() {
-                        if *sprite_number != 0 {
+                        let entity = &entities[*sprite_number as usize];
+                        if *sprite_number != 0 && !entity.is_traversable() {
                             collisions = collisions + 1;
                         }
                     }
@@ -168,7 +169,7 @@ impl Player {
             false
         };
     }
-    pub fn update_position(&mut self, world: &World) {
+    pub fn update_position(&mut self, world: &World, entities: &Entities) {
         let (scale_x, scale_y, screen_size, step) =
             (1.0, 1.0, SCREEN_SIZE as f64, self.get_step());
 
@@ -215,7 +216,7 @@ impl Player {
             Direction::Neutral => {}
         }
 
-        if self.collide_world(world) {
+        if self.collide_world(world, entities) {
             self.next_position = self.position;
             self.collision = Collision::Some;
         } else {
