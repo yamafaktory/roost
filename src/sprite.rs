@@ -3,6 +3,7 @@ extern crate find_folder;
 use entity::Entity;
 use piston_window::*;
 use types::{Entities, Sprites, Tex};
+
 pub struct Sprite {
     pub entities: Entities,
     pub sprites: Sprites,
@@ -12,6 +13,7 @@ impl Sprite {
     pub fn new(window: &mut PistonWindow) -> Self {
         // Sadly can't make it a constant due to current Rust limitation!
         let entities = vec![
+            Entity::Traversable(""),
             Entity::Traversable("grass-a"),
             Entity::Traversable("grass-b"),
             Entity::Block("tree-a"),
@@ -19,7 +21,7 @@ impl Sprite {
             Entity::Block("tree-c"),
         ];
         let sprites = generate_sprites(&entities, window);
-        Self { entities: entities, sprites }
+        Self { entities, sprites }
     }
 }
 
