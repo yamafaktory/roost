@@ -32,26 +32,25 @@ pub fn create_sprite(
     let assets = find_folder::Search::ParentsThenKids(1, 1)
         .for_folder("assets")
         .unwrap();
-
-    return Texture::from_path(
+    Texture::from_path(
         &mut window.factory,
         assets.join(src),
         Flip::None,
         &TextureSettings::new(),
-    );
+    )
 }
 
 pub fn generate_sprites(
     sprites: &Entities,
     window: &mut PistonWindow,
 ) -> Sprites {
-    return sprites
+    sprites
         .iter()
         .map(|s| {
-            let ref mut s = String::from(s.to_string());
+            let s = &mut String::from(s.to_string());
             let ext = ".png".to_string();
             s.push_str(&ext);
-            return create_sprite(window, s.to_string());
+            create_sprite(window, s.to_string())
         })
-        .collect::<Sprites>();
+        .collect::<Sprites>()
 }

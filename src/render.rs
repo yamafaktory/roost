@@ -4,7 +4,7 @@ use player::Player;
 use types::{Sprites, World};
 
 pub fn render(
-    event: Event,
+    event: &Event,
     window: &mut PistonWindow,
     world: &World,
     player: &Player,
@@ -12,7 +12,7 @@ pub fn render(
 ) -> () {
     let ((x, y), scale) = (player.get_position(), player.scale);
 
-    window.draw_2d(&event, |context, graphics| {
+    window.draw_2d(event, |context, graphics| {
         clear(BACKGROUND_COLOR, graphics);
 
         // Render the world sprites.

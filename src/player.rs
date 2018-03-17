@@ -54,7 +54,7 @@ impl Player {
             scale,
             // Start width first going down sprite.
             sprite_index: 9,
-            sprites: sprites,
+            sprites,
         }
     }
     fn get_step(&self) -> f64 { STEP }
@@ -88,10 +88,10 @@ impl Player {
                 ((self.next_position.x + x_offset) / SPRITE_SIZE).ceil(),
                 ((self.next_position.y + y_offset) / SPRITE_SIZE).ceil(),
             );
-            return (
+            (
                 (if y >= 1.0 { y - 1.0 } else { 0.0 }) as usize,
                 (if x >= 1.0 { x - 1.0 } else { 0.0 }) as usize,
-            );
+            )
         };
         if multi {
             let adjusted_sprite_size = SPRITE_SIZE - PIXEL_TOLERANCE;
@@ -108,41 +108,33 @@ impl Player {
                 adjusted_sprite_size,
                 adjusted_sprite_size,
             )));
-            return Either::Right(positions);
+            Either::Right(positions)
         } else {
             // Use the center of the sprite.
             let half_sprite_size = SPRITE_SIZE / 2.0;
-            return Either::Left(get_pos_tuple((
-                half_sprite_size,
-                half_sprite_size,
-            )));
+            Either::Left(get_pos_tuple((half_sprite_size, half_sprite_size)))
         }
     }
     fn collide_world(&self, world: &World, entities: &Entities) -> bool {
         let mut collisions = 0;
         if let Either::Right(positions) = self.position_to_matrix(true) {
-            positions
-                .iter()
-                .map(|&pos| {
-                    let (row, column) = pos;
-                    let column = world.column(column);
-                    let row = column.row(row);
-                    let mut iter = row.iter().enumerate();
-                    if let Some((_, sprite_number)) = iter.next() {
-                        let entity = &entities[*sprite_number as usize];
-                        if *sprite_number != 0 && !entity.is_traversable() {
-                            collisions = collisions + 1;
-                        }
+            for position in &positions {
+                let &(row, column) = position;
+                let column = world.column(column);
+                let row = column.row(row);
+                let mut iter = row.iter().enumerate();
+                if let Some((_, sprite_number)) = iter.next() {
+                    let entity = &entities[*sprite_number as usize];
+                    if *sprite_number != 0 && !entity.is_traversable() {
+                        collisions += 1;
                     }
-                })
-                .collect::<Vec<_>>();
+                }
+            }
         }
         collisions > 0
     }
     fn check_surroundings(&self, world: &World) -> bool {
-        return if let Either::Left((row, column)) =
-            self.position_to_matrix(false)
-        {
+        if let Either::Left((row, column)) = self.position_to_matrix(false) {
             // Extract a slice of the matrix to get the surroundings.
             let surroundings = match (row, column) {
                 (0, 1...8) => world.slice((0, column - 1), (2, 3)),
@@ -167,11 +159,11 @@ impl Player {
             obstacles != 0
         } else {
             false
-        };
+        }
     }
     pub fn update_position(&mut self, world: &World, entities: &Entities) {
         let (scale_x, scale_y, screen_size, step) =
-            (1.0, 1.0, SCREEN_SIZE as f64, self.get_step());
+            (1.0, 1.0, f64::from(SCREEN_SIZE), self.get_step());
 
         match self.direction {
             Direction::Left => if self.position.x > 0.0 {

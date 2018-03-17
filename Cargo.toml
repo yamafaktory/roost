@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Davy Duperron <yamafaktory@gmail.com>"]
 
 [dependencies]
+clippy = { version = "*", optional = true }
 find_folder = "0.3.0"
 gfx_device_gl = "0.14.6"
 nalgebra = "0.13.1"
